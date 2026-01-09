@@ -1,0 +1,11 @@
+```
+  
+  ## 🗂️ **.gitignore**
+  
+  Create this file in your **repo root**:
+  ```
+  node_modules
+  .vercel
+  .env
+  .env.local
+  ```
