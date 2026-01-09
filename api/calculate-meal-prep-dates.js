@@ -271,70 +271,38 @@ const SG_PUBLIC_HOLIDAYS = [
   }
   
   /**
-   * Vercel Serverless Function Handler
-   * This is the entry point for the API endpoint
-   * 
-   * Note: With ES modules, we need to handle request body parsing manually
-   */
-  export default async function handler(req, res) {
-    try {
-      // Set CORS headers
-      res.setHeader('Access-Control-Allow-Credentials', 'true');
-      res.setHeader('Access-Control-Allow-Origin', '*');
-      res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-      res.setHeader(
-        'Access-Control-Allow-Headers',
-        'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
-      );
-    
-      // Handle OPTIONS preflight request
-      if (req.method === 'OPTIONS') {
-        res.status(200).end();
-        return;
-      }
-    
-      // Only allow POST requests
-      if (req.method !== 'POST') {
-        return res.status(405).json({
-          success: false,
-          error: 'Method not allowed. Please use POST.',
-          timestamp: new Date().toISOString()
-        });
-      }
-    
-      // Parse request body if needed (Vercel should auto-parse JSON, but handle edge cases)
-      let requestBody = req.body;
-      if (!requestBody || Object.keys(requestBody).length === 0) {
-        // If body is empty or undefined, try to parse from raw body
-        if (req.body && typeof req.body === 'string') {
-          try {
-            requestBody = JSON.parse(req.body);
-          } catch (e) {
-            return res.status(400).json({
-              success: false,
-              error: 'Invalid JSON in request body',
-              timestamp: new Date().toISOString()
-            });
-          }
-        } else {
-          // Default to empty object if no body provided
-          requestBody = {};
-        }
-      }
-    
-      // Calculate dates
-      const result = calculateMealPrepDates(requestBody);
-    
-      // Return appropriate status code
-      const statusCode = result.success ? 200 : 400;
-      return res.status(statusCode).json(result);
-    } catch (error) {
-      // Handle any unexpected errors
-      console.error('Handler error:', error);
-      return res.status(500).json({
-        success: false,
-        error: error.message || 'Internal server error',
-        timestamp: new Date().toISOString()
-      });
-    }
+ * Vercel Serverless Function Handler
+ * This is the entry point for the API endpoint
+ */
+module.exports = async function handler(req, res) {
+  // Set CORS headers
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+  );
+
+  // Handle OPTIONS preflight request
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
   }
+
+  // Only allow POST requests
+  if (req.method !== 'POST') {
+    return res.status(405).json({
+      success: false,
+      error: 'Method not allowed. Please use POST.',
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  // Calculate dates
+  const result = calculateMealPrepDates(req.body);
+
+  // Return appropriate status code
+  const statusCode = result.success ? 200 : 400;
+  return res.status(statusCode).json(result);
+};

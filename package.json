@@ -2,7 +2,6 @@
     "name": "chatbot-date-calculator-api",
     "version": "1.0.0",
     "description": "Meal prep date calculator API for chatbot integration",
-    "type": "module",
     "scripts": {
       "dev": "vercel dev",
       "deploy": "vercel --prod"
@@ -13,7 +12,7 @@
       "chatbot",
       "api"
     ],
-    "author": "Your Name",
+    "author": "Rivyesch",
     "license": "MIT",
     "devDependencies": {
       "vercel": "^37.0.0"
