@@ -1,0 +1,497 @@
+{
+
+    "swagger": "2.0",
+  
+    "info": {
+  
+      "title": "Meal Prep Date Calculator",
+  
+      "description": "Calculate valid delivery dates for meal prep program, excluding Sundays and Singapore public holidays",
+  
+      "version": "1.0.0"
+  
+    },
+  
+    "host": "your-server.com",
+  
+    "basePath": "/api",
+  
+    "schemes": ["https"],
+  
+    "consumes": ["application/json"],
+  
+    "produces": ["application/json"],
+  
+    "paths": {
+  
+      "/calculate-meal-prep-dates": {
+  
+        "post": {
+  
+          "summary": "Calculate meal prep program dates",
+  
+          "description": "Calculates valid dates for program start, delivery 1, and delivery 2 based on signup date and business rules. Automatically excludes Sundays and Singapore public holidays.",
+  
+          "operationId": "calculateMealPrepDates",
+  
+          "parameters": [
+  
+            {
+  
+              "name": "body",
+  
+              "in": "body",
+  
+              "required": true,
+  
+              "schema": {
+  
+                "$ref": "#/definitions/CalculateRequest"
+  
+              }
+  
+            }
+  
+          ],
+  
+          "responses": {
+  
+            "200": {
+  
+              "description": "Successful calculation",
+  
+              "schema": {
+  
+                "$ref": "#/definitions/CalculateResponse"
+  
+              }
+  
+            },
+  
+            "400": {
+  
+              "description": "Invalid input",
+  
+              "schema": {
+  
+                "$ref": "#/definitions/ErrorResponse"
+  
+              }
+  
+            }
+  
+          }
+  
+        }
+  
+      }
+  
+    },
+  
+    "definitions": {
+  
+      "CalculateRequest": {
+  
+        "type": "object",
+  
+        "properties": {
+  
+          "signupDate": {
+  
+            "type": "string",
+  
+            "description": "Signup date in YYYY-MM-DD format. Defaults to today if not provided.",
+  
+            "example": "2026-01-09"
+  
+          },
+  
+          "programStartDate": {
+  
+            "type": "string",
+  
+            "description": "Program start date in YYYY-MM-DD format. Required for D1 and D2 calculations.",
+  
+            "example": "2026-01-20"
+  
+          },
+  
+          "delivery1Date": {
+  
+            "type": "string",
+  
+            "description": "Selected delivery 1 date in YYYY-MM-DD format. Required for D2 calculation.",
+  
+            "example": "2026-01-15"
+  
+          },
+  
+          "cheatDays": {
+  
+            "type": "integer",
+  
+            "minimum": 0,
+  
+            "maximum": 30,
+  
+            "description": "Number of cheat days (0-30). Defaults to 0.",
+  
+            "example": 2
+  
+          },
+  
+          "calculation": {
+  
+            "type": "string",
+  
+            "enum": ["psd", "d1", "d2", "all"],
+  
+            "description": "Calculation type: psd (Program Start Date), d1 (Delivery 1), d2 (Delivery 2), all (everything)",
+  
+            "example": "d1"
+  
+          }
+  
+        }
+  
+      },
+  
+      "CalculateResponse": {
+  
+        "type": "object",
+  
+        "properties": {
+  
+          "success": {
+  
+            "type": "boolean",
+  
+            "description": "Whether the calculation was successful",
+  
+            "example": true
+  
+          },
+  
+          "timestamp": {
+  
+            "type": "string",
+  
+            "description": "ISO 8601 timestamp of calculation",
+  
+            "example": "2026-01-09T10:30:00.000Z"
+  
+          },
+  
+          "input": {
+  
+            "type": "object",
+  
+            "description": "Echo of input parameters"
+  
+          },
+  
+          "calculations": {
+  
+            "type": "object",
+  
+            "properties": {
+  
+              "programStartDate": {
+  
+                "$ref": "#/definitions/ProgramStartDateResult"
+  
+              },
+  
+              "delivery1": {
+  
+                "$ref": "#/definitions/DeliveryResult"
+  
+              },
+  
+              "delivery2": {
+  
+                "$ref": "#/definitions/DeliveryResult"
+  
+              }
+  
+            }
+  
+          }
+  
+        },
+  
+        "example": {
+  
+          "success": true,
+  
+          "timestamp": "2026-01-09T10:30:00.000Z",
+  
+          "input": {
+  
+            "signupDate": "2026-01-09",
+  
+            "programStartDate": "2026-01-20",
+  
+            "calculation": "d1"
+  
+          },
+  
+          "calculations": {
+  
+            "delivery1": {
+  
+              "availableDates": [
+  
+                {
+  
+                  "date": "2026-01-13",
+  
+                  "dayOfWeek": "Tuesday",
+  
+                  "displayDate": "January 13, 2026"
+  
+                },
+  
+                {
+  
+                  "date": "2026-01-14",
+  
+                  "dayOfWeek": "Wednesday",
+  
+                  "displayDate": "January 14, 2026"
+  
+                }
+  
+              ],
+  
+              "count": 6,
+  
+              "message": "6 delivery dates available between Jan 13 and Jan 19 (excluding Sundays and public holidays)."
+  
+            }
+  
+          }
+  
+        }
+  
+      },
+  
+      "ProgramStartDateResult": {
+  
+        "type": "object",
+  
+        "properties": {
+  
+          "earliestDate": {
+  
+            "type": "string",
+  
+            "description": "Earliest valid program start date (signup + 7 days)",
+  
+            "example": "2026-01-16"
+  
+          },
+  
+          "rule": {
+  
+            "type": "string",
+  
+            "description": "Business rule applied",
+  
+            "example": "Must be at least 7 days after sign-up"
+  
+          },
+  
+          "noRestrictions": {
+  
+            "type": "boolean",
+  
+            "description": "Any day after earliest date is valid (including Sundays/holidays)",
+  
+            "example": true
+  
+          },
+  
+          "message": {
+  
+            "type": "string",
+  
+            "description": "Human-readable message",
+  
+            "example": "You can start your program any day from January 16, 2026 onwards (including weekends and holidays)."
+  
+          }
+  
+        }
+  
+      },
+  
+      "DeliveryResult": {
+  
+        "type": "object",
+  
+        "properties": {
+  
+          "availableDates": {
+  
+            "type": "array",
+  
+            "description": "List of available dates (Sundays and holidays excluded)",
+  
+            "items": {
+  
+              "$ref": "#/definitions/DateOption"
+  
+            }
+  
+          },
+  
+          "count": {
+  
+            "type": "integer",
+  
+            "description": "Number of available dates",
+  
+            "example": 6
+  
+          },
+  
+          "window": {
+  
+            "type": "object",
+  
+            "properties": {
+  
+              "earliest": {
+  
+                "type": "string",
+  
+                "example": "2026-01-13"
+  
+              },
+  
+              "latest": {
+  
+                "type": "string",
+  
+                "example": "2026-01-19"
+  
+              }
+  
+            }
+  
+          },
+  
+          "message": {
+  
+            "type": "string",
+  
+            "description": "Human-readable summary",
+  
+            "example": "6 delivery dates available between Jan 13 and Jan 19 (excluding Sundays and public holidays)."
+  
+          },
+  
+          "day6Date": {
+  
+            "type": "string",
+  
+            "description": "Day 6 date (D2 only)",
+  
+            "example": "2026-01-27"
+  
+          },
+  
+          "cheatDaysApplied": {
+  
+            "type": "integer",
+  
+            "description": "Cheat days used (D2 only)",
+  
+            "example": 2
+  
+          }
+  
+        }
+  
+      },
+  
+      "DateOption": {
+  
+        "type": "object",
+  
+        "properties": {
+  
+          "date": {
+  
+            "type": "string",
+  
+            "description": "Date in YYYY-MM-DD format",
+  
+            "example": "2026-01-15"
+  
+          },
+  
+          "dayOfWeek": {
+  
+            "type": "string",
+  
+            "description": "Day name",
+  
+            "example": "Thursday"
+  
+          },
+  
+          "displayDate": {
+  
+            "type": "string",
+  
+            "description": "Human-readable format",
+  
+            "example": "January 15, 2026"
+  
+          }
+  
+        }
+  
+      },
+  
+      "ErrorResponse": {
+  
+        "type": "object",
+  
+        "properties": {
+  
+          "success": {
+  
+            "type": "boolean",
+  
+            "example": false
+  
+          },
+  
+          "error": {
+  
+            "type": "string",
+  
+            "description": "Error message",
+  
+            "example": "Invalid date format: 2026/01/09"
+  
+          },
+  
+          "timestamp": {
+  
+            "type": "string",
+  
+            "example": "2026-01-09T10:30:00.000Z"
+  
+          }
+  
+        }
+  
+      }
+  
+    }
+  
+  }

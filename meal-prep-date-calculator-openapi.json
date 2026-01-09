@@ -1,0 +1,1155 @@
+{
+
+    "openapi": "3.0.0",
+  
+    "info": {
+  
+      "title": "Meal Prep Date Calculator API",
+  
+      "description": "Calculates valid program start dates and delivery windows for meal prep programs based on business rules. Automatically excludes Sundays and Singapore public holidays for delivery dates.",
+  
+      "version": "1.0.0",
+  
+      "contact": {
+  
+        "name": "API Support"
+  
+      }
+  
+    },
+  
+    "servers": [
+  
+      {
+  
+        "url": "https://api.yourdomain.com/v1",
+  
+        "description": "Production server"
+  
+      }
+  
+    ],
+  
+    "paths": {
+  
+      "/calculate-meal-prep-dates": {
+  
+        "post": {
+  
+          "summary": "Calculate meal prep program dates",
+  
+          "description": "Calculates valid dates for program start, delivery 1, and delivery 2 based on signup date and business rules. Can calculate all dates at once or specific calculations only.",
+  
+          "operationId": "calculateMealPrepDates",
+  
+          "tags": ["Date Calculator"],
+  
+          "requestBody": {
+  
+            "required": true,
+  
+            "content": {
+  
+              "application/json": {
+  
+                "schema": {
+  
+                  "$ref": "#/components/schemas/CalculateDatesRequest"
+  
+                },
+  
+                "examples": {
+  
+                  "calculateProgramStartDate": {
+  
+                    "summary": "Calculate Program Start Date only",
+  
+                    "description": "Get earliest valid program start date (7 days after signup)",
+  
+                    "value": {
+  
+                      "signupDate": "2026-01-09",
+  
+                      "calculation": "psd"
+  
+                    }
+  
+                  },
+  
+                  "calculateDelivery1": {
+  
+                    "summary": "Calculate Delivery 1 options",
+  
+                    "description": "Get all available delivery 1 dates (excluding Sundays and holidays)",
+  
+                    "value": {
+  
+                      "signupDate": "2026-01-09",
+  
+                      "programStartDate": "2026-01-20",
+  
+                      "calculation": "d1"
+  
+                    }
+  
+                  },
+  
+                  "calculateDelivery2": {
+  
+                    "summary": "Calculate Delivery 2 options",
+  
+                    "description": "Get all available delivery 2 dates with cheat days",
+  
+                    "value": {
+  
+                      "signupDate": "2026-01-09",
+  
+                      "programStartDate": "2026-01-20",
+  
+                      "delivery1Date": "2026-01-15",
+  
+                      "cheatDays": 2,
+  
+                      "calculation": "d2"
+  
+                    }
+  
+                  },
+  
+                  "calculateAll": {
+  
+                    "summary": "Calculate all dates",
+  
+                    "description": "Calculate program start date, delivery 1, and delivery 2 in one call",
+  
+                    "value": {
+  
+                      "signupDate": "2026-01-09",
+  
+                      "programStartDate": "2026-01-20",
+  
+                      "delivery1Date": "2026-01-15",
+  
+                      "cheatDays": 1,
+  
+                      "calculation": "all"
+  
+                    }
+  
+                  },
+  
+                  "useDefaultSignupDate": {
+  
+                    "summary": "Use today as signup date",
+  
+                    "description": "Omit signupDate to use current date automatically",
+  
+                    "value": {
+  
+                      "programStartDate": "2026-01-20",
+  
+                      "calculation": "d1"
+  
+                    }
+  
+                  }
+  
+                }
+  
+              }
+  
+            }
+  
+          },
+  
+          "responses": {
+  
+            "200": {
+  
+              "description": "Successful calculation",
+  
+              "content": {
+  
+                "application/json": {
+  
+                  "schema": {
+  
+                    "$ref": "#/components/schemas/CalculateDatesResponse"
+  
+                  },
+  
+                  "examples": {
+  
+                    "successfulPSD": {
+  
+                      "summary": "Program Start Date calculation",
+  
+                      "value": {
+  
+                        "success": true,
+  
+                        "timestamp": "2026-01-09T10:30:00.000Z",
+  
+                        "input": {
+  
+                          "signupDate": "2026-01-09",
+  
+                          "programStartDate": null,
+  
+                          "delivery1Date": null,
+  
+                          "cheatDays": 0,
+  
+                          "calculation": "psd"
+  
+                        },
+  
+                        "calculations": {
+  
+                          "programStartDate": {
+  
+                            "earliestDate": "2026-01-16",
+  
+                            "rule": "Must be at least 7 days after sign-up",
+  
+                            "noRestrictions": true,
+  
+                            "message": "You can start your program any day from January 16, 2026 onwards (including weekends and holidays)."
+  
+                          }
+  
+                        }
+  
+                      }
+  
+                    },
+  
+                    "successfulD1": {
+  
+                      "summary": "Delivery 1 calculation with available dates",
+  
+                      "value": {
+  
+                        "success": true,
+  
+                        "timestamp": "2026-01-09T10:30:00.000Z",
+  
+                        "input": {
+  
+                          "signupDate": "2026-01-09",
+  
+                          "programStartDate": "2026-01-20",
+  
+                          "delivery1Date": null,
+  
+                          "cheatDays": 0,
+  
+                          "calculation": "d1"
+  
+                        },
+  
+                        "calculations": {
+  
+                          "delivery1": {
+  
+                            "availableDates": [
+  
+                              {
+  
+                                "date": "2026-01-13",
+  
+                                "dayOfWeek": "Tuesday",
+  
+                                "displayDate": "January 13, 2026"
+  
+                              },
+  
+                              {
+  
+                                "date": "2026-01-14",
+  
+                                "dayOfWeek": "Wednesday",
+  
+                                "displayDate": "January 14, 2026"
+  
+                              },
+  
+                              {
+  
+                                "date": "2026-01-15",
+  
+                                "dayOfWeek": "Thursday",
+  
+                                "displayDate": "January 15, 2026"
+  
+                              },
+  
+                              {
+  
+                                "date": "2026-01-16",
+  
+                                "dayOfWeek": "Friday",
+  
+                                "displayDate": "January 16, 2026"
+  
+                              },
+  
+                              {
+  
+                                "date": "2026-01-19",
+  
+                                "dayOfWeek": "Monday",
+  
+                                "displayDate": "January 19, 2026"
+  
+                              }
+  
+                            ],
+  
+                            "count": 5,
+  
+                            "window": {
+  
+                              "earliest": "2026-01-13",
+  
+                              "latest": "2026-01-19"
+  
+                            },
+  
+                            "rules": {
+  
+                              "excludeSundays": true,
+  
+                              "excludePublicHolidays": true,
+  
+                              "minimumProcessingDays": 4
+  
+                            },
+  
+                            "message": "5 delivery dates available between Jan 13 and Jan 19 (excluding Sundays and public holidays)."
+  
+                          }
+  
+                        }
+  
+                      }
+  
+                    },
+  
+                    "successfulD2": {
+  
+                      "summary": "Delivery 2 calculation with cheat days",
+  
+                      "value": {
+  
+                        "success": true,
+  
+                        "timestamp": "2026-01-09T10:30:00.000Z",
+  
+                        "input": {
+  
+                          "signupDate": "2026-01-09",
+  
+                          "programStartDate": "2026-01-20",
+  
+                          "delivery1Date": "2026-01-15",
+  
+                          "cheatDays": 2,
+  
+                          "calculation": "d2"
+  
+                        },
+  
+                        "calculations": {
+  
+                          "delivery2": {
+  
+                            "availableDates": [
+  
+                              {
+  
+                                "date": "2026-01-15",
+  
+                                "dayOfWeek": "Thursday",
+  
+                                "displayDate": "January 15, 2026"
+  
+                              },
+  
+                              {
+  
+                                "date": "2026-01-16",
+  
+                                "dayOfWeek": "Friday",
+  
+                                "displayDate": "January 16, 2026"
+  
+                              },
+  
+                              {
+  
+                                "date": "2026-01-19",
+  
+                                "dayOfWeek": "Monday",
+  
+                                "displayDate": "January 19, 2026"
+  
+                              },
+  
+                              {
+  
+                                "date": "2026-01-20",
+  
+                                "dayOfWeek": "Tuesday",
+  
+                                "displayDate": "January 20, 2026"
+  
+                              },
+  
+                              {
+  
+                                "date": "2026-01-21",
+  
+                                "dayOfWeek": "Wednesday",
+  
+                                "displayDate": "January 21, 2026"
+  
+                              },
+  
+                              {
+  
+                                "date": "2026-01-22",
+  
+                                "dayOfWeek": "Thursday",
+  
+                                "displayDate": "January 22, 2026"
+  
+                              },
+  
+                              {
+  
+                                "date": "2026-01-23",
+  
+                                "dayOfWeek": "Friday",
+  
+                                "displayDate": "January 23, 2026"
+  
+                              },
+  
+                              {
+  
+                                "date": "2026-01-26",
+  
+                                "dayOfWeek": "Monday",
+  
+                                "displayDate": "January 26, 2026"
+  
+                              }
+  
+                            ],
+  
+                            "count": 8,
+  
+                            "window": {
+  
+                              "earliest": "2026-01-15",
+  
+                              "latest": "2026-01-26"
+  
+                            },
+  
+                            "day6Date": "2026-01-27",
+  
+                            "cheatDaysApplied": 2,
+  
+                            "rules": {
+  
+                              "excludeSundays": true,
+  
+                              "excludePublicHolidays": true,
+  
+                              "mustArriveBeforeDay6": true
+  
+                            },
+  
+                            "message": "8 delivery dates available between Jan 15 and Jan 26 (excluding Sundays and public holidays)."
+  
+                          }
+  
+                        }
+  
+                      }
+  
+                    },
+  
+                    "noAvailableDates": {
+  
+                      "summary": "No available dates in window",
+  
+                      "value": {
+  
+                        "success": true,
+  
+                        "timestamp": "2026-01-09T10:30:00.000Z",
+  
+                        "input": {
+  
+                          "signupDate": "2026-01-09",
+  
+                          "programStartDate": "2026-01-12",
+  
+                          "delivery1Date": null,
+  
+                          "cheatDays": 0,
+  
+                          "calculation": "d1"
+  
+                        },
+  
+                        "calculations": {
+  
+                          "delivery1": {
+  
+                            "error": true,
+  
+                            "message": "No available delivery dates. Program start date must be at least 5 days after sign-up to allow for delivery.",
+  
+                            "earliestPossible": "2026-01-13",
+  
+                            "latestPossible": "2026-01-11"
+  
+                          }
+  
+                        }
+  
+                      }
+  
+                    }
+  
+                  }
+  
+                }
+  
+              }
+  
+            },
+  
+            "400": {
+  
+              "description": "Bad request - invalid input",
+  
+              "content": {
+  
+                "application/json": {
+  
+                  "schema": {
+  
+                    "$ref": "#/components/schemas/ErrorResponse"
+  
+                  },
+  
+                  "examples": {
+  
+                    "invalidDateFormat": {
+  
+                      "summary": "Invalid date format",
+  
+                      "value": {
+  
+                        "success": false,
+  
+                        "error": "Invalid date format: 2026/01/09",
+  
+                        "timestamp": "2026-01-09T10:30:00.000Z"
+  
+                      }
+  
+                    },
+  
+                    "invalidCheatDays": {
+  
+                      "summary": "Invalid cheat days value",
+  
+                      "value": {
+  
+                        "success": false,
+  
+                        "error": "cheatDays must be between 0 and 30",
+  
+                        "timestamp": "2026-01-09T10:30:00.000Z"
+  
+                      }
+  
+                    }
+  
+                  }
+  
+                }
+  
+              }
+  
+            },
+  
+            "500": {
+  
+              "description": "Internal server error",
+  
+              "content": {
+  
+                "application/json": {
+  
+                  "schema": {
+  
+                    "$ref": "#/components/schemas/ErrorResponse"
+  
+                  }
+  
+                }
+  
+              }
+  
+            }
+  
+          }
+  
+        }
+  
+      }
+  
+    },
+  
+    "components": {
+  
+      "schemas": {
+  
+        "CalculateDatesRequest": {
+  
+          "type": "object",
+  
+          "description": "Request parameters for meal prep date calculation",
+  
+          "properties": {
+  
+            "signupDate": {
+  
+              "type": "string",
+  
+              "format": "date",
+  
+              "description": "Sign-up date in YYYY-MM-DD format. Defaults to today if not provided.",
+  
+              "example": "2026-01-09"
+  
+            },
+  
+            "programStartDate": {
+  
+              "type": "string",
+  
+              "format": "date",
+  
+              "description": "Desired program start date in YYYY-MM-DD format. Required for D1 and D2 calculations.",
+  
+              "example": "2026-01-20"
+  
+            },
+  
+            "delivery1Date": {
+  
+              "type": "string",
+  
+              "format": "date",
+  
+              "description": "Selected delivery 1 date in YYYY-MM-DD format. Required for D2 calculation.",
+  
+              "example": "2026-01-15"
+  
+            },
+  
+            "cheatDays": {
+  
+              "type": "integer",
+  
+              "minimum": 0,
+  
+              "maximum": 30,
+  
+              "default": 0,
+  
+              "description": "Number of cheat days (0-30). Used for D2 calculation to determine Day 6.",
+  
+              "example": 2
+  
+            },
+  
+            "calculation": {
+  
+              "type": "string",
+  
+              "enum": ["psd", "d1", "d2", "all"],
+  
+              "default": "all",
+  
+              "description": "Specific calculation to perform:\n- `psd`: Program Start Date only\n- `d1`: Delivery 1 dates only\n- `d2`: Delivery 2 dates only\n- `all`: All calculations (default)",
+  
+              "example": "d1"
+  
+            }
+  
+          },
+  
+          "required": []
+  
+        },
+  
+        "CalculateDatesResponse": {
+  
+          "type": "object",
+  
+          "description": "Successful response with calculated dates",
+  
+          "properties": {
+  
+            "success": {
+  
+              "type": "boolean",
+  
+              "description": "Indicates if the calculation was successful",
+  
+              "example": true
+  
+            },
+  
+            "timestamp": {
+  
+              "type": "string",
+  
+              "format": "date-time",
+  
+              "description": "ISO 8601 timestamp of when the calculation was performed",
+  
+              "example": "2026-01-09T10:30:00.000Z"
+  
+            },
+  
+            "input": {
+  
+              "type": "object",
+  
+              "description": "Echo of input parameters used for calculation",
+  
+              "properties": {
+  
+                "signupDate": {
+  
+                  "type": "string",
+  
+                  "format": "date",
+  
+                  "example": "2026-01-09"
+  
+                },
+  
+                "programStartDate": {
+  
+                  "type": "string",
+  
+                  "format": "date",
+  
+                  "nullable": true,
+  
+                  "example": "2026-01-20"
+  
+                },
+  
+                "delivery1Date": {
+  
+                  "type": "string",
+  
+                  "format": "date",
+  
+                  "nullable": true,
+  
+                  "example": "2026-01-15"
+  
+                },
+  
+                "cheatDays": {
+  
+                  "type": "integer",
+  
+                  "example": 0
+  
+                },
+  
+                "calculation": {
+  
+                  "type": "string",
+  
+                  "example": "all"
+  
+                }
+  
+              }
+  
+            },
+  
+            "calculations": {
+  
+              "type": "object",
+  
+              "description": "Calculated results based on requested calculation type",
+  
+              "properties": {
+  
+                "programStartDate": {
+  
+                  "$ref": "#/components/schemas/ProgramStartDateResult"
+  
+                },
+  
+                "delivery1": {
+  
+                  "$ref": "#/components/schemas/DeliveryDateResult"
+  
+                },
+  
+                "delivery2": {
+  
+                  "$ref": "#/components/schemas/DeliveryDateResult"
+  
+                }
+  
+              }
+  
+            }
+  
+          },
+  
+          "required": ["success", "timestamp", "input", "calculations"]
+  
+        },
+  
+        "ProgramStartDateResult": {
+  
+          "type": "object",
+  
+          "description": "Program Start Date calculation result",
+  
+          "properties": {
+  
+            "earliestDate": {
+  
+              "type": "string",
+  
+              "format": "date",
+  
+              "description": "Earliest valid program start date (signup + 7 days)",
+  
+              "example": "2026-01-16"
+  
+            },
+  
+            "rule": {
+  
+              "type": "string",
+  
+              "description": "Business rule applied",
+  
+              "example": "Must be at least 7 days after sign-up"
+  
+            },
+  
+            "noRestrictions": {
+  
+              "type": "boolean",
+  
+              "description": "Indicates that any day after earliest date is valid (including Sundays and holidays)",
+  
+              "example": true
+  
+            },
+  
+            "message": {
+  
+              "type": "string",
+  
+              "description": "Human-readable message for display",
+  
+              "example": "You can start your program any day from January 16, 2026 onwards (including weekends and holidays)."
+  
+            }
+  
+          },
+  
+          "required": ["earliestDate", "rule", "noRestrictions", "message"]
+  
+        },
+  
+        "DeliveryDateResult": {
+  
+          "type": "object",
+  
+          "description": "Delivery date calculation result",
+  
+          "properties": {
+  
+            "availableDates": {
+  
+              "type": "array",
+  
+              "description": "List of available delivery dates (Sundays and public holidays excluded)",
+  
+              "items": {
+  
+                "$ref": "#/components/schemas/DateOption"
+  
+              }
+  
+            },
+  
+            "count": {
+  
+              "type": "integer",
+  
+              "description": "Number of available dates",
+  
+              "example": 5
+  
+            },
+  
+            "window": {
+  
+              "type": "object",
+  
+              "description": "Date range window (before exclusions)",
+  
+              "properties": {
+  
+                "earliest": {
+  
+                  "type": "string",
+  
+                  "format": "date",
+  
+                  "example": "2026-01-13"
+  
+                },
+  
+                "latest": {
+  
+                  "type": "string",
+  
+                  "format": "date",
+  
+                  "example": "2026-01-19"
+  
+                }
+  
+              }
+  
+            },
+  
+            "day6Date": {
+  
+              "type": "string",
+  
+              "format": "date",
+  
+              "description": "Day 6 date (only for D2 calculation)",
+  
+              "example": "2026-01-27"
+  
+            },
+  
+            "cheatDaysApplied": {
+  
+              "type": "integer",
+  
+              "description": "Number of cheat days applied (only for D2 calculation)",
+  
+              "example": 2
+  
+            },
+  
+            "rules": {
+  
+              "type": "object",
+  
+              "description": "Rules applied to this calculation",
+  
+              "properties": {
+  
+                "excludeSundays": {
+  
+                  "type": "boolean",
+  
+                  "example": true
+  
+                },
+  
+                "excludePublicHolidays": {
+  
+                  "type": "boolean",
+  
+                  "example": true
+  
+                },
+  
+                "minimumProcessingDays": {
+  
+                  "type": "integer",
+  
+                  "description": "Minimum processing days (D1 only)",
+  
+                  "example": 4
+  
+                },
+  
+                "mustArriveBeforeDay6": {
+  
+                  "type": "boolean",
+  
+                  "description": "Must arrive before Day 6 (D2 only)",
+  
+                  "example": true
+  
+                }
+  
+              }
+  
+            },
+  
+            "message": {
+  
+              "type": "string",
+  
+              "description": "Human-readable message for display",
+  
+              "example": "5 delivery dates available between Jan 13 and Jan 19 (excluding Sundays and public holidays)."
+  
+            },
+  
+            "error": {
+  
+              "type": "boolean",
+  
+              "description": "Indicates if there was an error (e.g., no available dates)",
+  
+              "example": false
+  
+            }
+  
+          }
+  
+        },
+  
+        "DateOption": {
+  
+          "type": "object",
+  
+          "description": "A single date option with formatted display values",
+  
+          "properties": {
+  
+            "date": {
+  
+              "type": "string",
+  
+              "format": "date",
+  
+              "description": "Date in YYYY-MM-DD format",
+  
+              "example": "2026-01-15"
+  
+            },
+  
+            "dayOfWeek": {
+  
+              "type": "string",
+  
+              "description": "Full day name",
+  
+              "example": "Thursday"
+  
+            },
+  
+            "displayDate": {
+  
+              "type": "string",
+  
+              "description": "Human-readable date format",
+  
+              "example": "January 15, 2026"
+  
+            }
+  
+          },
+  
+          "required": ["date", "dayOfWeek", "displayDate"]
+  
+        },
+  
+        "ErrorResponse": {
+  
+          "type": "object",
+  
+          "description": "Error response",
+  
+          "properties": {
+  
+            "success": {
+  
+              "type": "boolean",
+  
+              "description": "Always false for errors",
+  
+              "example": false
+  
+            },
+  
+            "error": {
+  
+              "type": "string",
+  
+              "description": "Error message describing what went wrong",
+  
+              "example": "Invalid date format: 2026/01/09"
+  
+            },
+  
+            "timestamp": {
+  
+              "type": "string",
+  
+              "format": "date-time",
+  
+              "description": "ISO 8601 timestamp of when the error occurred",
+  
+              "example": "2026-01-09T10:30:00.000Z"
+  
+            }
+  
+          },
+  
+          "required": ["success", "error", "timestamp"]
+  
+        }
+  
+      }
+  
+    },
+  
+    "tags": [
+  
+      {
+  
+        "name": "Date Calculator",
+  
+        "description": "Meal prep program date calculation endpoints"
+  
+      }
+  
+    ]
+  
+  }
