@@ -12,7 +12,7 @@
   
     },
   
-    "host": "your-server.com",
+    "host": "chatbot-date-calculator.vercel.app",
   
     "basePath": "/api",
   

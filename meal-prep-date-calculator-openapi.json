@@ -22,7 +22,7 @@
   
       {
   
-        "url": "https://api.yourdomain.com/v1",
+        "url": "https://chatbot-date-calculator.vercel.app/api",
   
         "description": "Production server"
   
